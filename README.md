@@ -135,8 +135,3 @@ Here is the recommended file structure for the project:
 * Created for the **Phantom Blade Zero** global community.
 * Github: [@poonnyworld](https://github.com/poonnyworld/)
 * Discord: `poonrighthere#7210`
-
----
-
-## 📜 License
-This project is created for the **Phantom Blade Zero** community.
