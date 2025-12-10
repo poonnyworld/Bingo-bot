@@ -32,7 +32,7 @@ class BingoBot(commands.Bot):
 
 bot = BingoBot()
 
-# --- 3. View for Admin to Delete Channel ---
+# --- View for Admin to Delete Channel ---
 class AdminDeleteView(View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -42,7 +42,7 @@ class AdminDeleteView(View):
         await interaction.response.defer()
         await interaction.channel.delete()
 
-# --- 2. View for User to Confirm Submission ---
+# --- View for User to Confirm Submission ---
 class UserReviewView(View):
     def __init__(self, user: discord.Member):
         super().__init__(timeout=None)
@@ -61,9 +61,11 @@ class UserReviewView(View):
         await asyncio.sleep(10)
 
         try:
+            # Hierarchy Check: Bot must be higher than User to remove permission
             if interaction.guild.me.top_role > self.user.top_role:
                 await interaction.channel.set_permissions(self.user, overwrite=None)
             else:
+                # If User is Admin/Staff (Higher than Bot), Bot cannot remove them.
                 await interaction.channel.send("⚠️ Note: Cannot auto-remove user due to role hierarchy (Admin/Staff).")
         except Exception as e:
             print(f"Error removing permissions: {e}")
@@ -76,7 +78,7 @@ class UserReviewView(View):
         )
         await interaction.channel.send(embed=embed, view=AdminDeleteView())
 
-# --- 1. Main Submission Button ---
+# --- Main Submission Button ---
 class SubmissionView(View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -107,7 +109,7 @@ class SubmissionView(View):
             guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True, manage_channels=True)
         }
 
-        # Safety Check: Only add user overwrite if Bot > User
+        # Add user permissions (Only if Bot > User to prevent 50013)
         if guild.me.top_role > user.top_role:
             overwrites[user] = discord.PermissionOverwrite(
                 read_messages=True, 
@@ -128,7 +130,7 @@ class SubmissionView(View):
             await interaction.followup.send(f"❌ Error creating channel: {e}", ephemeral=True)
             return
         
-        # Notify User
+        # Notify User with correct link
         if guild.me.top_role <= user.top_role:
              await interaction.followup.send(f"✅ **Temp channel created!** {temp_channel.mention}\n(Note: As an Admin/Staff, you should see it automatically)", ephemeral=True)
         else:
@@ -154,7 +156,7 @@ class SubmissionView(View):
             try:
                 target_channel = bot.get_channel(TARGET_CHANNEL_ID)
                 if not target_channel:
-                    raise Exception(f"Admin Channel ID {TARGET_CHANNEL_ID} not found.")
+                    raise Exception(f"Admin Channel ID {TARGET_CHANNEL_ID} not found (Bot cannot see it).")
 
                 file = await message.attachments[0].to_file()
                 
@@ -180,9 +182,10 @@ class SubmissionView(View):
 
             except Exception as e:
                 print(f"Error sending image: {e}")
+                # แจ้งเตือน Error ให้ User รู้ถ้าส่งไม่ผ่าน (เช่น 50001)
                 error_embed = discord.Embed(
                     title="❌ Error Processing Image",
-                    description=f"Could not forward your image to the admin channel.\n**Reason:** `{e}`",
+                    description=f"Could not forward your image to the admin channel.\n**Reason:** `{e}`\n\n*Admin: Check if the bot has access to the target channel.*",
                     color=discord.Color.red()
                 )
                 await temp_channel.send(embed=error_embed)
@@ -195,21 +198,21 @@ class SubmissionView(View):
             except:
                 pass
 
-# --- Setup Command with Parameters (Reward Removed) ---
+# --- Setup Command WITHOUT Reward ---
 @bot.tree.command(name="setup_bingo", description="Setup the Bingo submission button with event details")
 @app_commands.describe(
     event_name="Name of the event (e.g., 'Bingo v3.0')"
 )
 @app_commands.checks.has_permissions(administrator=True)
-async def setup_bingo(interaction: discord.Interaction, event_name: str): # <--- ลบ reward ออกจากตรงนี้
+async def setup_bingo(interaction: discord.Interaction, event_name: str):
     
+    # ไม่มี reward ใน function arguments แล้ว
     embed = discord.Embed(
         title=f"🔮 Bingo Prediction: {event_name}",
         description="Click the button below to submit your prediction image!\nA private channel will be created for you.",
         color=discord.Color.gold()
     )
     
-    # ลบ field ของ Reward ออก
     embed.add_field(name="📋 Instructions", value="1. Click 'Submit Prediction'\n2. Upload your image in the new channel\n3. Confirm submission", inline=False)
 
     await interaction.response.send_message(embed=embed, view=SubmissionView())
