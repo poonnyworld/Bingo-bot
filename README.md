@@ -125,3 +125,18 @@ Here is the recommended file structure for the project:
 ├── main.py                # The main source code of the bot
 └── requirements.txt       # List of required Python libraries (discord.py, python-dotenv)
 ```
+
+---
+
+## 👤 Author
+
+**Sirawitch Butryojantho**
+* **Developer & System Architect**
+* Created for the **Phantom Blade Zero** global community.
+* Github: [@poonnyworld](https://github.com/poonnyworld/)
+* Discord: `poonrighthere#7210`
+
+---
+
+## 📜 License
+This project is created for the **Phantom Blade Zero** community.
