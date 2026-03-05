@@ -10,7 +10,7 @@ A Discord bot designed to manage **Bingo Prediction events**. It allows users to
 * **Image Forwarding:** User submissions are automatically forwarded to a specific Admin-only channel.
 * **Auto-Cleanup:** Temporary channels are deleted after submission or if inactive for 10 minutes.
 * **Smart Permissions:** Handles role hierarchy checks to prevent permission errors.
-* **Docker Ready:** Includes `Dockerfile` and `docker-compose.yml` for easy deployment.
+* **Docker Ready:** Includes `Dockerfile` and `docker-compose.yml` for easy deployment. In multi-stack deployment (e.g. `start-all.sh` in dev), this is **Stack 7**.
 
 ## 🛠️ Prerequisites
 
